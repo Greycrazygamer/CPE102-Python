@@ -20,6 +20,23 @@ class MinerNotFull:
       self.animation_rate = animation_rate
       self.pending_actions = []
 
+   def set_position(self, point):
+      self.position = point
+
+   def get_position(self):
+      return self.position
+
+
+   def get_images(self):
+      return self.imgs
+
+   def get_image(self):
+      return self.imgs[entity.current_img]
+
+
+   def get_rate(self):
+      return self.rate
+
 class MinerFull:
    def __init__(self, name, resource_limit, position, rate, imgs,
       animation_rate):
@@ -32,6 +49,23 @@ class MinerFull:
       self.resource_count = resource_limit
       self.animation_rate = animation_rate
       self.pending_actions = []
+   
+   def set_position(self, point):
+      self.position = point
+
+   def get_position(self):
+      return self.position
+
+
+   def get_images(self):
+      return self.imgs
+
+   def get_image(self):
+      return self.imgs[entity.current_img]
+
+
+   def get_rate(self):
+      return self.rate
 
 class Vein:
    def __init__(self, name, rate, position, imgs, resource_distance=1):
@@ -43,6 +77,23 @@ class Vein:
       self.resource_distance = resource_distance
       self.pending_actions = []
 
+   def set_position(self, point):
+      self.position = point
+
+   def get_position(self):
+      return self.position
+
+
+   def get_images(self):
+      return self.imgs
+
+   def get_image(self):
+      return self.imgs[entity.current_img]
+
+
+   def get_rate(self):
+      return self.rate
+
 class Ore:
    def __init__(self, name, position, imgs, rate=5000):
       self.name = name
@@ -51,6 +102,23 @@ class Ore:
       self.current_img = 0
       self.rate = rate
       self.pending_actions = []
+
+   def set_position(self, point):
+      self.position = point
+
+   def get_position(self):
+      return self.position
+
+
+   def get_images(self):
+      return self.imgs
+
+   def get_image(self):
+      return self.imgs[entity.current_img]
+
+
+   def get_rate(self):
+      return self.rate
 
 class Blacksmith:
    def __init__(self, name, position, imgs, resource_limit, rate,
@@ -65,12 +133,43 @@ class Blacksmith:
       self.resource_distance = resource_distance
       self.pending_actions = []
 
+   def set_position(self, point):
+      self.position = point
+
+   def get_position(self):
+      return self.position
+
+
+   def get_images(self):
+      return self.imgs
+
+   def get_image(self):
+      return self.imgs[entity.current_img]
+
+
+   def get_rate(self):
+      return self.rate
+
 class Obstacle:
    def __init__(self, name, position, imgs):
       self.name = name
       self.position = position
       self.imgs = imgs
       self.current_img = 0
+
+   def set_position(self, point):
+      self.position = point
+
+   def get_position(self):
+      return self.position
+
+
+   def get_images(self):
+      return self.imgs
+
+   def get_image(self):
+      return self.imgs[entity.current_img]
+ 
 
 class OreBlob:
    def __init__(self, name, position, rate, imgs, animation_rate):
@@ -82,6 +181,23 @@ class OreBlob:
       self.animation_rate = animation_rate
       self.pending_actions = []
 
+   def set_position(self, point):
+      self.position = point
+
+   def get_position(self):
+      return self.position
+
+
+   def get_images(self):
+      return self.imgs
+
+   def get_image(self):
+      return self.imgs[entity.current_img]
+
+
+   def get_rate(self):
+      return self.rate
+
 class Quake:
    def __init__(self, name, position, imgs, animation_rate):
       self.name = name
@@ -91,12 +207,28 @@ class Quake:
       self.animation_rate = animation_rate
       self.pending_actions = []
 
+   def set_position(self, point):
+      self.position = point
 
-def set_position(entity, point):
-   entity.position = point
+   def get_position(self):
+      return self.position
 
-def get_position(entity):
-   return entity.position
+
+   def get_images(self):
+      return self.imgs
+
+   def get_image(self):
+      return self.imgs[entity.current_img]
+
+
+   def get_rate(self):
+      return self.rate
+
+# def set_position(entity, point):
+#    entity.position = point
+
+# def get_position(entity):
+#    return entity.position
 
 
 def get_images(entity):

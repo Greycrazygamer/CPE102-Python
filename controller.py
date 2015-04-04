@@ -25,7 +25,7 @@ def mouse_to_tile(pos, tile_width, tile_height):
 
 def handle_timer_event(world, view):
    rects = worldmodel.update_on_time(world, pygame.time.get_ticks())
-   worldview.update_view_tiles(view, rects)
+   view.update_view_tiles(rects)
 
 
 def handle_mouse_motion(view, event):
@@ -35,7 +35,7 @@ def handle_mouse_motion(view, event):
 
 def handle_keydown(view, event):
    view_delta = on_keydown(event)
-   worldview.update_view(view, view_delta)
+   view.update_view(view_delta)
 
 
 def activity_loop(view, world):

@@ -84,7 +84,7 @@ def add_background(world, properties, i_store):
    if len(properties) >= BGND_NUM_PROPERTIES:
       pt = point.Point(int(properties[BGND_COL]), int(properties[BGND_ROW]))
       name = properties[BGND_NAME]
-      worldmodel.set_background(world, pt,
+      world.set_background(pt,
          entities.Background(name, image_store.get_images(i_store, name)))
 
 
