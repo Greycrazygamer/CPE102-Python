@@ -37,50 +37,50 @@ def adjacent(pt1, pt2):
       (pt1.y == pt2.y and abs(pt1.x - pt2.x) == 1))
 
 
-def next_position(world, entity_pt, dest_pt):
-   horiz = sign(dest_pt.x - entity_pt.x)
-   new_pt = point.Point(entity_pt.x + horiz, entity_pt.y)
+# def next_position(world, entity_pt, dest_pt):
+#    horiz = sign(dest_pt.x - entity_pt.x)
+#    new_pt = point.Point(entity_pt.x + horiz, entity_pt.y)
 
-   if horiz == 0 or world.is_occupied(new_pt):
-      vert = sign(dest_pt.y - entity_pt.y)
-      new_pt = point.Point(entity_pt.x, entity_pt.y + vert)
+#    if horiz == 0 or world.is_occupied(new_pt):
+#       vert = sign(dest_pt.y - entity_pt.y)
+#       new_pt = point.Point(entity_pt.x, entity_pt.y + vert)
 
-      if vert == 0 or world.is_occupied(new_pt):
-         new_pt = point.Point(entity_pt.x, entity_pt.y)
+#       if vert == 0 or world.is_occupied(new_pt):
+#          new_pt = point.Point(entity_pt.x, entity_pt.y)
 
-   return new_pt
-
-
-def blob_next_position(world, entity_pt, dest_pt):
-   horiz = sign(dest_pt.x - entity_pt.x)
-   new_pt = point.Point(entity_pt.x + horiz, entity_pt.y)
-
-   if horiz == 0 or (world.is_occupied(new_pt) and
-      not isinstance(world.get_tile_occupant(new_pt),
-      entities.Ore)):
-      vert = sign(dest_pt.y - entity_pt.y)
-      new_pt = point.Point(entity_pt.x, entity_pt.y + vert)
-
-      if vert == 0 or (world.is_occupied(new_pt) and
-         not isinstance(world.get_tile_occupant(new_pt),
-         entities.Ore)):
-         new_pt = point.Point(entity_pt.x, entity_pt.y)
-
-   return new_pt
+#    return new_pt
 
 
-def miner_to_ore(world, entity, ore):
-   entity_pt = entity.get_position()
-   if not ore:
-      return ([entity_pt], False)
-   ore_pt = ore.get_position()
-   if adjacent(entity_pt, ore_pt):
-      entity.set_resource_count(1 + entity.get_resource_count())
-      remove_entity(world, ore)
-      return ([ore_pt], True)
-   else:
-      new_pt = next_position(world, entity_pt, ore_pt)
-      return (world.move_entity(entity, new_pt), False)
+# def blob_next_position(world, entity_pt, dest_pt):
+#    horiz = sign(dest_pt.x - entity_pt.x)
+#    new_pt = point.Point(entity_pt.x + horiz, entity_pt.y)
+
+#    if horiz == 0 or (world.is_occupied(new_pt) and
+#       not isinstance(world.get_tile_occupant(new_pt),
+#       entities.Ore)):
+#       vert = sign(dest_pt.y - entity_pt.y)
+#       new_pt = point.Point(entity_pt.x, entity_pt.y + vert)
+
+#       if vert == 0 or (world.is_occupied(new_pt) and
+#          not isinstance(world.get_tile_occupant(new_pt),
+#          entities.Ore)):
+#          new_pt = point.Point(entity_pt.x, entity_pt.y)
+
+#    return new_pt
+
+
+# def miner_to_ore(world, entity, ore):
+#    entity_pt = entity.get_position()
+#    if not ore:
+#       return ([entity_pt], False)
+#    ore_pt = ore.get_position()
+#    if adjacent(entity_pt, ore_pt):
+#       entity.set_resource_count(1 + entity.get_resource_count())
+#       remove_entity(world, ore)
+#       return ([ore_pt], True)
+#    else:
+#       new_pt = entity.next_position(world, ore_pt)
+#       return (world.move_entity(entity, new_pt), False)
 
 
 def miner_to_smith(world, entity, smith):
@@ -95,7 +95,7 @@ def miner_to_smith(world, entity, smith):
       entity.set_resource_count(0)
       return ([], True)
    else:
-      new_pt = next_position(world, entity_pt, smith_pt)
+      new_pt = entity.next_position(world, smith_pt)
       return (world.move_entity(entity, new_pt), False)
 
 
@@ -105,7 +105,7 @@ def create_miner_not_full_action(world, entity, i_store):
 
       entity_pt = entity.get_position()
       ore = world.find_nearest(entity_pt, entities.Ore)
-      (tiles, found) = miner_to_ore(world, entity, ore)
+      (tiles, found) = entity.miner_to_ore(world, ore)
 
       new_entity = entity
       if found:
@@ -148,7 +148,7 @@ def blob_to_vein(world, entity, vein):
       remove_entity(world, vein)
       return ([vein_pt], True)
    else:
-      new_pt = blob_next_position(world, entity_pt, vein_pt)
+      new_pt = entity.blob_next_position(world, vein_pt)
       old_entity = world.get_tile_occupant(new_pt)
       if isinstance(old_entity, entities.Ore):
          remove_entity(world, old_entity)

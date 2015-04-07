@@ -1,4 +1,5 @@
 import point
+import actions
 
 class Background:
    def __init__(self, name, imgs):
@@ -8,7 +9,7 @@ class Background:
 
    def get_name(self):
       return self.name
-      
+
    def get_images(self):
       return self.imgs
 
@@ -60,6 +61,32 @@ class MinerNotFull:
    def get_resource_limit(self):
       return self.resource_limit
 
+   def next_position(self, world, dest_pt):
+      horiz = actions.sign(dest_pt.x - self.position.x)
+      new_pt = point.Point(self.position.x + horiz, self.position.y)
+
+      if horiz == 0 or world.is_occupied(new_pt):
+         vert = actions.sign(dest_pt.y - self.position.y)
+         new_pt = point.Point(self.position.x, self.position.y + vert)
+
+         if vert == 0 or world.is_occupied(new_pt):
+            new_pt = point.Point(self.position.x, self.position.y)
+
+      return new_pt
+
+   def miner_to_ore(self, world, ore):
+      entity_pt = self.get_position()
+      if not ore:
+         return ([entity_pt], False)
+      ore_pt = ore.get_position()
+      if actions.adjacent(entity_pt, ore_pt):
+         self.set_resource_count(1 + self.get_resource_count())
+         actions.remove_entity(world, ore)
+         return ([ore_pt], True)
+      else:
+         new_pt = self.next_position(world, ore_pt)
+         return (world.move_entity(self, new_pt), False)
+
 class MinerFull:
    def __init__(self, name, resource_limit, position, rate, imgs,
       animation_rate):
@@ -104,6 +131,19 @@ class MinerFull:
 
    def get_resource_limit(self):
       return self.resource_limit
+
+   def next_position(self, world, dest_pt):
+      horiz = actions.sign(dest_pt.x - self.position.x)
+      new_pt = point.Point(self.position.x + horiz, self.position.y)
+
+      if horiz == 0 or world.is_occupied(new_pt):
+         vert = actions.sign(dest_pt.y - self.position.y)
+         new_pt = point.Point(self.position.x, self.position.y + vert)
+
+         if vert == 0 or world.is_occupied(new_pt):
+            new_pt = point.Point(self.position.x, self.position.y)
+
+      return new_pt
 
 class Vein:
    def __init__(self, name, rate, position, imgs, resource_distance=1):
@@ -266,6 +306,21 @@ class OreBlob:
 
    def get_animation_rate(self):
       return self.animation_rate
+
+   def blob_next_position(self, world, dest_pt):
+      horiz = actions.sign(dest_pt.x - self.position.x)
+      new_pt = point.Point(self.position.x + horiz, self.position.y)
+
+      if horiz == 0 or (world.is_occupied(new_pt) and
+         not isinstance(world.get_tile_occupant(new_pt),Ore)):
+         vert = actions.sign(dest_pt.y - self.position.y)
+         new_pt = point.Point(self.position.x, self.position.y + vert)
+
+         if vert == 0 or (world.is_occupied(new_pt) and
+            not isinstance(world.get_tile_occupant(new_pt), Ore)):
+            new_pt = point.Point(self.position.x, self.position.y)
+
+      return new_pt
 
 class Quake:
    def __init__(self, name, position, imgs, animation_rate):
