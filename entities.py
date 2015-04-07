@@ -145,6 +145,22 @@ class MinerFull:
 
       return new_pt
 
+   def miner_to_smith(self, world, smith):
+      entity_pt = self.get_position()
+      if not smith:
+         return ([entity_pt], False)
+      smith_pt = smith.get_position()
+      if actions.adjacent(entity_pt, smith_pt):
+         smith.set_resource_count(
+            smith.get_resource_count() +
+            self.get_resource_count())
+         self.set_resource_count(0)
+         return ([], True)
+      else:
+         new_pt = self.next_position(world, smith_pt)
+         return (world.move_entity(self, new_pt), False)
+
+
 class Vein:
    def __init__(self, name, rate, position, imgs, resource_distance=1):
       self.name = name
@@ -321,6 +337,21 @@ class OreBlob:
             new_pt = point.Point(self.position.x, self.position.y)
 
       return new_pt
+
+   def blob_to_vein(self, world, vein):
+      entity_pt = self.get_position()
+      if not vein:
+         return ([entity_pt], False)
+      vein_pt = vein.get_position()
+      if actions.adjacent(entity_pt, vein_pt):
+         actions.remove_entity(world, vein)
+         return ([vein_pt], True)
+      else:
+         new_pt = self.blob_next_position(world, vein_pt)
+         old_entity = world.get_tile_occupant(new_pt)
+         if isinstance(old_entity, Ore):
+            actions.remove_entity(world, old_entity)
+         return (world.move_entity(self, new_pt), False)
 
 class Quake:
    def __init__(self, name, position, imgs, animation_rate):
