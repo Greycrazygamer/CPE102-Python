@@ -18,6 +18,7 @@ class Background:
    def get_image(self):
       return self.imgs[self.current_img]
 
+
 class MinerNotFull:
    def __init__(self, name, resource_limit, position, rate, imgs,
       animation_rate):
@@ -85,6 +86,7 @@ class MinerNotFull:
          self.pending_actions = []
 
 
+
    def next_position(self, world, dest_pt):
       horiz = sign(dest_pt.x - self.position.x)
       new_pt = point.Point(self.position.x + horiz, self.position.y)
@@ -122,7 +124,7 @@ class MinerNotFull:
          new_entity = self
          if found:
             new_entity = try_transform_miner(world, self,
-               try_transform_miner_not_full)
+               self.try_transform_miner_not_full)
 
          schedule_action(world, new_entity,
             create_miner_action(world, new_entity, i_store),
@@ -130,6 +132,22 @@ class MinerNotFull:
          return tiles
       return action
 
+   def try_transform_miner_not_full(self, world):
+      if self.resource_count < self.resource_limit:
+         return self
+      else:
+         new_entity = MinerFull(
+            self.get_name(), self.get_resource_limit(),
+            self.get_position(), self.get_rate(),
+            self.get_images(), self.get_animation_rate())
+         return new_entity
+
+   def schedule_miner(self, world, ticks, i_store):
+      schedule_action(world, self, create_miner_action(world, self, i_store),
+         ticks + self.get_rate())
+      schedule_animation(world, self)
+
+   
 class MinerFull:
    def __init__(self, name, resource_limit, position, rate, imgs,
       animation_rate):
@@ -235,13 +253,27 @@ class MinerFull:
          new_entity = self
          if found:
             new_entity = try_transform_miner(world, self,
-               try_transform_miner_full)
+               self.try_transform_miner_full)
 
          schedule_action(world, new_entity,
             create_miner_action(world, new_entity, i_store),
             current_ticks +  new_entity.get_rate())
          return tiles
       return action
+
+   def try_transform_miner_full(self, world):
+      new_entity = MinerNotFull(
+         self.get_name(), self.get_resource_limit(),
+         self.get_position(), self.get_rate(),
+         self.get_images(), self.get_animation_rate())
+
+      return new_entity
+   
+   def schedule_miner(self, world, ticks, i_store):
+      schedule_action(world, self, create_miner_action(world, self, i_store),
+         ticks + self.get_rate())
+      schedule_animation(world, self)
+
 
 class Vein:
    def __init__(self, name, rate, position, imgs, resource_distance=1):
@@ -296,6 +328,31 @@ class Vein:
       if hasattr(self, "pending_actions"):
          self.pending_actions = []
 
+   def create_vein_action(self, world, i_store):
+      def action(current_ticks):
+         self.remove_pending_action(action)
+
+         open_pt = find_open_around(world, self.get_position(),
+            self.get_resource_distance())
+         if open_pt:
+            ore = create_ore(world,
+               "ore - " + self.get_name() + " - " + str(current_ticks),
+               open_pt, current_ticks, i_store)
+            world.add_entity(ore)
+            tiles = [open_pt]
+         else:
+            tiles = []
+
+         schedule_action(world, self,
+            self.create_vein_action(world, i_store),
+            current_ticks + self.get_rate())
+         return tiles
+      return action
+
+   def schedule_vein(self, world, ticks, i_store):
+      schedule_action(world, self, self.create_vein_action(world, i_store),
+         ticks + self.get_rate())
+
 
 class Ore:
    def __init__(self, name, position, imgs, rate=5000):
@@ -347,6 +404,26 @@ class Ore:
       if hasattr(self, "pending_actions"):
          self.pending_actions = []
 
+   def schedule_ore(self, world, ticks, i_store):
+      schedule_action(world, self,
+         self.create_ore_transform_action(world, i_store),
+         ticks + self.get_rate())
+
+   def create_ore_transform_action(self, world, i_store):
+      def action(current_ticks):
+         self.remove_pending_action(action)
+         blob = create_blob(world, self.get_name() + " -- blob",
+            self.get_position(),
+            self.get_rate() // BLOB_RATE_SCALE,
+            current_ticks, i_store)
+
+         remove_entity(world, self)
+         world.add_entity(blob)
+
+         return [blob.get_position()]
+      return action
+
+
 class Blacksmith:
    def __init__(self, name, position, imgs, resource_limit, rate,
       resource_distance=1):
@@ -392,6 +469,7 @@ class Blacksmith:
 
    def get_resource_distance(self):
       return self.resource_distance
+
 
 class Obstacle:
    def __init__(self, name, position, imgs):
@@ -536,11 +614,17 @@ class OreBlob:
             next_time = current_ticks + self.get_rate() * 2
 
          schedule_action(world, self,
-            create_ore_blob_action(world, self, i_store),
+            self.create_ore_blob_action(world, i_store),
             next_time)
 
          return tiles
       return action
+
+   def schedule_blob(self, world, ticks, i_store):
+      schedule_action(world, self, self.create_ore_blob_action(world, i_store),
+         ticks + self.get_rate())
+      schedule_animation(world, self)
+
 
 class Quake:
    def __init__(self, name, position, imgs, animation_rate):
@@ -592,72 +676,10 @@ class Quake:
       if hasattr(self, "pending_actions"):
          self.pending_actions = []
 
-
-# def set_position(entity, point):
-#    entity.position = point
-
-# def get_position(entity):
-#    return entity.position
-
-
-# def get_images(entity):
-#    return entity.imgs
-
-# def get_image(entity):
-#    return entity.imgs[entity.current_img]
-
-
-# def get_rate(entity):
-#    return entity.rate
-
-
-# def get_animation_rate(entity):
-#    return entity.animation_rate
-
-# def set_resource_count(entity, n):
-#    entity.resource_count = n
-
-# def get_resource_count(entity):
-#    return entity.resource_count
-
-
-# def get_resource_limit(entity):
-#    return entity.resource_limit
-
-
-# def get_resource_distance(entity):
-#    return entity.resource_distance
-
-
-# def get_name(entity):
-#    return entity.name
-
-
-
-
-#def remove_pending_action(entity, action):
- #  if hasattr(entity, "pending_actions"):
-  #    entity.pending_actions.remove(action)
-#
-#def add_pending_action(entity, action):
- #  if hasattr(entity, "pending_actions"):
-  #    entity.pending_actions.append(action)
-
-
-#def get_pending_actions(entity):
- #  if hasattr(entity, "pending_actions"):
-  #    return entity.pending_actions
-   #else:
-    #  return []
-
-#def clear_pending_actions(entity):
- #  if hasattr(entity, "pending_actions"):
-  #    entity.pending_actions = []
-
-
-#def next_image(entity):
- #  entity.current_img = (entity.current_img + 1) % len(entity.imgs)
-
+   def schedule_quake(self, world, ticks):
+      schedule_animation(world, self, QUAKE_STEPS) 
+      schedule_action(world, self, create_entity_death_action(world, self),
+         ticks + QUAKE_DURATION)
 
 # This is a less than pleasant file format, but structured based on
 # material covered in course.  Something like JSON would be a

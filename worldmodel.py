@@ -98,16 +98,16 @@ class WorldModel:
    def get_entities(self):
       return self.entities
 
-def update_on_time(world, ticks):
-   tiles = []
+   def update_on_time(self, ticks):
+      tiles = []
 
-   next = world.action_queue.head()
-   while next and next.ord < ticks:
-      world.action_queue.pop()
-      tiles.extend(next.item(ticks))  # invoke action function
-      next = world.action_queue.head()
+      next = self.action_queue.head()
+      while next and next.ord < ticks:
+         self.action_queue.pop()
+         tiles.extend(next.item(ticks))  # invoke action function
+         next = self.action_queue.head()
 
-   return tiles
+      return tiles
 
 def nearest_entity(entity_dists):
    if len(entity_dists) > 0:
