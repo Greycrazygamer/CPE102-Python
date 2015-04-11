@@ -1,0 +1,278 @@
+ENTITIES.py
+class: Background
+methods:
+   get_name
+   get_image
+   get_images
+   next_image
+
+class: MinerNotFull
+methods:
+   get_name
+   set_position
+   get_position
+   get_image
+   get_images
+   next_image
+   get_rate
+   get_animation_rate
+   set_resource_count
+   get_resource_limit
+   remove_pending_action
+   add_pending_actions
+   get_pending_acitons
+   clear_pending_actions
+   next_position
+   miner_to_ore
+   create_miner_action
+   try_transform_miner_not_full
+   try_transform_miner
+   schedule_miner
+
+class: MinerNotFull
+methods:
+   get_name
+   set_position
+   get_position
+   get_image
+   get_images
+   next_image
+   get_rate
+   get_animation_rate
+   set_resource_count
+   get_resource_limit
+   remove_pending_action
+   add_pending_actions
+   get_pending_acitons
+   clear_pending_actions
+   next_position
+   miner_to_smith
+   create_miner_action
+   try_transform_miner_full
+   try_transform_miner
+   schedule_miner
+
+class: Vein
+methods:
+   get_name
+   set_position
+   get_position
+   get_image
+   get_images
+   next_image
+   get_rate
+   get_resource_distance
+   remove_pending_action
+   add_pending_actions
+   get_pending_acitons
+   clear_pending_actions
+   create_vein_action
+   schedule_vein
+
+class: Ore
+methods:
+   get_name
+   set_position
+   get_position
+   get_image
+   get_images
+   next_image
+   get_rate
+   remove_pending_action
+   add_pending_actions
+   get_pending_acitons
+   clear_pending_actions
+   schedule_ore
+
+class: Blacksmith:
+methods:
+   get_name
+   set_position
+   get_position
+   get_image
+   get_images
+   next_image
+   get_rate  
+   set_resource_count 
+   get_resource_count
+   get_resource_limit
+   get_resource_distance 
+
+class: Obstacle
+methods:
+   get_name
+   set_position
+   get_position
+   get_image
+   get_images
+   next_image
+   remove_pending_action
+   add_pending_actions
+   get_pending_acitons
+   clear_pending_actions
+
+class: OreBlob
+methods:
+   get_name
+   set_position
+   get_position
+   get_image
+   get_images
+   next_image
+   get_rate
+   get_animation_rate
+   remove_pending_action
+   add_pending_actions
+   get_pending_acitons
+   clear_pending_actions
+   blob_next_position
+   blob_to_vein
+   create_blob_action
+   schedule_blob
+
+class: Quake
+methods:
+   get_name
+   set_position
+   get_position
+   get_image
+   get_images
+   next_image
+   get_animation_rate
+   remove_pending_action
+   add_pending_actions
+   get_pending_acitons
+   clear_pending_actions
+   schedule_quake
+
+functions:
+entity_string
+   Left becuase it creates a string containing instances of all entities together(Miner, Blob, Ore, etc...)
+
+
+
+WORLDMODEL.py
+class: WorldModel
+methods:
+   within_bounds
+   is_occupied
+   find_nearest
+   add_entity
+   move_entity
+   remove_entity
+   remove_entity_at
+   schedule_action
+   unschedule_action
+   get_background_image
+   get_background
+   set_background
+   get_tile_occupant
+   get_entities
+   update_on_time
+
+functions:
+   nearest_entity
+      Point calculation, not used by worldmodel at all.
+   distance_sq
+      Caluculation between two points, not used by worldmodel.
+
+
+
+WORLDVIEW.py
+class: WorldView
+methods:
+   draw_background
+   draw_entities
+   draw_viewport
+   update_view_tiles
+   get_tile_image
+   update_view
+   update_tile
+   update_mouse_cursor
+   viewport_to_world
+   world_to_viewpoint
+   create_mouse_surface
+   mouse_move
+   create_shifted_viewport
+
+functions:
+   clamp
+      Comparision helper function, not used by any class directly.
+
+
+
+
+OCC_GRID.py
+class: Grid
+methods:
+   set_cell
+   get_cell
+
+
+
+
+POINT.py
+class: Point
+methods:
+   no methods, data only
+
+
+
+
+ACTIONS.py
+functions:
+   sign
+      Helper math function
+   adjacent
+      Helper points funciton, not used by point as it includes two points as arguments
+   find_open_around
+      Used equally by the worldmodel and poin classes
+   remove_entity
+      An expansion on an already existing worldmodel methods, not made into a method because the methods already exists.
+   
+   create_animation_action
+   create_entity_death_action
+   schedule_action
+   schedule_animation
+   clear_pending_actions
+      All of these functions are used equal between worldmodel and entities, adn thus do not belong in either classes
+
+
+
+
+
+ORDERED_LIST.py
+class: OrderedList
+methods:
+   insert
+   remove
+   head
+   pop
+
+class: ListItem
+methods:
+   eq
+
+
+
+
+CONTROLLER.py
+   functions contain external input from the user and pygame, and are thus left untouched.
+
+SAVE_LOAD.py
+   Not edited, as it uses fileI/O and the default values of the world
+
+BUILDER.py
+   An external program, which is never used directly by the project, and thus left untouched.
+
+BUILDERCONTROLLER.py
+   Used by builder.py and again left untouched because it was not used directly by the project.
+
+IMAGESTORE.py
+   Not edited as it uses files, and adjusting it may disrupt the file I/O of the program.
+
+MOUSE_BUTTONS.py and KEYS.py
+   contain no functions
+
+MAIN.py
+   Not edited, runs all other files, does not directly work with data.

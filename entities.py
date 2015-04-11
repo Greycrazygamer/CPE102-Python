@@ -113,7 +113,7 @@ class MinerNotFull:
          new_pt = self.next_position(world, ore_pt)
          return (world.move_entity(self, new_pt), False)
    
-   def create_miner_not_full_action(self, world, i_store):
+   def create_miner_action(self, world, i_store):
       def action(current_ticks):
          self.remove_pending_action(action)
 
@@ -123,14 +123,26 @@ class MinerNotFull:
 
          new_entity = self
          if found:
-            new_entity = try_transform_miner(world, self,
+            new_entity = self.try_transform_miner(world,
                self.try_transform_miner_not_full)
 
          schedule_action(world, new_entity,
-            create_miner_action(world, new_entity, i_store),
+            new_entity.create_miner_action(world, i_store),
             current_ticks + new_entity.get_rate())
          return tiles
       return action
+
+   
+
+   def try_transform_miner(self, world, transform):
+      new_entity = transform(world)
+      if self != new_entity:
+         clear_pending_actions(world, self)
+         world.remove_entity_at(self.get_position())
+         world.add_entity(new_entity)
+         schedule_animation(world, new_entity)
+
+      return new_entity
 
    def try_transform_miner_not_full(self, world):
       if self.resource_count < self.resource_limit:
@@ -143,7 +155,7 @@ class MinerNotFull:
          return new_entity
 
    def schedule_miner(self, world, ticks, i_store):
-      schedule_action(world, self, create_miner_action(world, self, i_store),
+      schedule_action(world, self, self.create_miner_action(world, i_store),
          ticks + self.get_rate())
       schedule_animation(world, self)
 
@@ -242,7 +254,7 @@ class MinerFull:
          new_pt = self.next_position(world, smith_pt)
          return (world.move_entity(self, new_pt), False)
     
-   def create_miner_full_action(self,world, i_store):
+   def create_miner_action(self,world, i_store):
       def action(current_ticks):
          self.remove_pending_action(action)
 
@@ -252,11 +264,11 @@ class MinerFull:
 
          new_entity = self
          if found:
-            new_entity = try_transform_miner(world, self,
+            new_entity = self.try_transform_miner(world,
                self.try_transform_miner_full)
 
          schedule_action(world, new_entity,
-            create_miner_action(world, new_entity, i_store),
+            new_entity.create_miner_action(world, i_store),
             current_ticks +  new_entity.get_rate())
          return tiles
       return action
@@ -266,6 +278,16 @@ class MinerFull:
          self.get_name(), self.get_resource_limit(),
          self.get_position(), self.get_rate(),
          self.get_images(), self.get_animation_rate())
+
+      return new_entity
+
+   def try_transform_miner(self, world, transform):
+      new_entity = transform(world)
+      if self != new_entity:
+         clear_pending_actions(world, self)
+         world.remove_entity_at(self.get_position())
+         world.add_entity(new_entity)
+         schedule_animation(world, new_entity)
 
       return new_entity
    
@@ -335,7 +357,7 @@ class Vein:
          open_pt = find_open_around(world, self.get_position(),
             self.get_resource_distance())
          if open_pt:
-            ore = create_ore(world,
+            ore = world.create_ore(
                "ore - " + self.get_name() + " - " + str(current_ticks),
                open_pt, current_ticks, i_store)
             world.add_entity(ore)
@@ -412,7 +434,7 @@ class Ore:
    def create_ore_transform_action(self, world, i_store):
       def action(current_ticks):
          self.remove_pending_action(action)
-         blob = create_blob(world, self.get_name() + " -- blob",
+         blob = world.create_blob(self.get_name() + " -- blob",
             self.get_position(),
             self.get_rate() // BLOB_RATE_SCALE,
             current_ticks, i_store)
@@ -609,7 +631,7 @@ class OreBlob:
 
          next_time = current_ticks + self.get_rate()
          if found:
-            quake = create_quake(world, tiles[0], current_ticks, i_store)
+            quake = world.create_quake(tiles[0], current_ticks, i_store)
             world.add_entity(quake)
             next_time = current_ticks + self.get_rate() * 2
 

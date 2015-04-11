@@ -67,7 +67,7 @@ class WorldView:
 
 
    def update_view(self, view_delta=(0,0), mouse_img=None):
-      self.viewport = create_shifted_viewport(self.viewport, view_delta,
+      self.viewport = self.create_shifted_viewport(view_delta,
          self.num_rows, self.num_cols)
       self.mouse_img = mouse_img
       self.draw_viewport()
@@ -122,18 +122,14 @@ class WorldView:
 
       pygame.display.update(rects)
 
+   def create_shifted_viewport(self, delta, num_rows, num_cols):
+      new_x = clamp(self.viewport.left + delta[0], 0, num_cols - self.viewport.width)
+      new_y = clamp(self.viewport.top + delta[1], 0, num_rows - self.viewport.height)
+
+      return pygame.Rect(new_x, new_y, self.viewport.width, self.viewport.height)
 
 def clamp(v, low, high):
    return min(high, max(v, low))
-
-
-def create_shifted_viewport(viewport, delta, num_rows, num_cols):
-   new_x = clamp(viewport.left + delta[0], 0, num_cols - viewport.width)
-   new_y = clamp(viewport.top + delta[1], 0, num_rows - viewport.height)
-
-   return pygame.Rect(new_x, new_y, viewport.width, viewport.height)
-
-
 
 
 

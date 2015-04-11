@@ -1,9 +1,11 @@
 import entities
 import pygame
 import ordered_list
-import actions
+from actions import *
+import random
 import occ_grid
 import point
+import image_store
 
 class WorldModel:
    def __init__(self, num_rows, num_cols, background):
@@ -108,6 +110,34 @@ class WorldModel:
          next = self.action_queue.head()
 
       return tiles
+
+   def create_blob(self, name, pt, rate, ticks, i_store):
+      blob = entities.OreBlob(name, pt, rate,
+         image_store.get_images(i_store, 'blob'),
+         random.randint(BLOB_ANIMATION_MIN, BLOB_ANIMATION_MAX)
+         * BLOB_ANIMATION_RATE_SCALE)
+      blob.schedule_blob(self, ticks, i_store)
+      return blob
+
+
+   def create_vein(self, name, pt, ticks, i_store):
+      vein = entities.Vein("vein" + name,
+         random.randint(VEIN_RATE_MIN, VEIN_RATE_MAX),
+         pt, image_store.get_images(i_store, 'vein'))
+      return vein
+
+   def create_ore(self, name, pt, ticks, i_store):
+      ore = entities.Ore(name, pt, image_store.get_images(i_store, 'ore'),
+         random.randint(ORE_CORRUPT_MIN, ORE_CORRUPT_MAX))
+      ore.schedule_ore(self, ticks, i_store)
+
+      return ore
+
+   def create_quake(self, pt, ticks, i_store):
+      quake = entities.Quake("quake", pt,
+         image_store.get_images(i_store, 'quake'), QUAKE_ANIMATION_RATE)
+      quake.schedule_quake(self, ticks)
+      return quake
 
 def nearest_entity(entity_dists):
    if len(entity_dists) > 0:
