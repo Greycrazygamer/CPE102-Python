@@ -49,7 +49,7 @@ class WorldView:
             img = self.get_tile_image(v_pt)
             rects.append(self.update_tile(v_pt, img))
             if self.mouse_pt.x == v_pt.x and self.mouse_pt.y == v_pt.y:
-               rects.append(update_mouse_cursor(self))
+               rects.append(self.update_mouse_cursor())
 
       pygame.display.update(rects)
 

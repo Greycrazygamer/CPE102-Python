@@ -19,12 +19,18 @@ class Background:
       return self.imgs[self.current_img]
 
 class Entity(object):
-   def __init__(self, name, position, imgs):
+   def __init__(self, name, position, imgs, nickname):
       self.name= name
       self.position= position
       self.imgs= imgs
       self.current_img=0
+      self.nickname= nickname
 
+   def entity_string():
+      return ' '.join([self.nickname, self.name, str(self.position.x), str(self.position.y), self.string_call()])
+        
+  
+      
    def get_name(self):
       return self.name
 
@@ -44,8 +50,8 @@ class Entity(object):
       return self.imgs[self.current_img]
 
 class Actionable(Entity):
-   def __init__(self, name, position, imgs):
-      super(Actionable, self).__init__(name, position, imgs)
+   def __init__(self, name, position, imgs, nickname):
+      super(Actionable, self).__init__(name, position, imgs, nickname)
       self.pending_actions= []
 
    def remove_pending_action(self, action):
@@ -68,8 +74,8 @@ class Actionable(Entity):
          self.pending_actions = []
 
 class Mover(Actionable):
-   def __init__(self, name, position, rate, imgs):
-      super(Mover, self).__init__(name, position, imgs)
+   def __init__(self, name, position, rate, imgs, nickname):
+      super(Mover, self).__init__(name, position, imgs, nickname)
       self.rate = rate
 
    def get_rate(self):
@@ -78,7 +84,8 @@ class Mover(Actionable):
 class Miner(Mover):
    def __init__(self, name, resource_limit, position, rate, imgs,
       animation_rate):
-      super(Miner, self).__init__(name, position, rate, imgs)
+      nickname= 'miner'
+      super(Miner, self).__init__(name, position, rate, imgs, nickname)
       self.resource_limit = resource_limit
       self.resource_count = 0
       self.animation_rate = animation_rate
@@ -126,7 +133,6 @@ class Miner(Mover):
      
 
 class MinerNotFull(Miner):
-   
    def miner_to_ore(self, world, ore):
       entity_pt = self.get_position()
       if not ore:
@@ -139,7 +145,10 @@ class MinerNotFull(Miner):
       else:
          new_pt = self.next_position(world, ore_pt)
          return (world.move_entity(self, new_pt), False)
-   
+
+   def string_call():
+       return ''.join([str(self.resource_limit), str(self.rate), str(self.animation_rate)])
+
    def create_miner_action(self, world, i_store):
       def action(current_ticks):
          self.remove_pending_action(action)
@@ -173,7 +182,6 @@ class MinerNotFull(Miner):
 
 
 class MinerFull(Miner):
-   
    def miner_to_smith(self, world, smith):
       entity_pt = self.get_position()
       if not smith:
@@ -221,12 +229,16 @@ class MinerFull(Miner):
 class Blacksmith(Entity):
    def __init__(self, name, position, imgs, resource_limit, rate,
       resource_distance=1):
-      super(Blacksmith, self).__init__(name, position, imgs)
+      nickname= 'blacksmith'
+      super(Blacksmith, self).__init__(name, position, imgs, nickname)
       self.resource_limit = resource_limit
       self.resource_count = 0
       self.rate = rate
       self.resource_distance = resource_distance
       self.pending_actions = []
+
+   def string_call():
+      return ''.join([str(self.resource_limit), str(self.rate), str(self.resource_distance)])
 
    def get_rate(self):
       return self.rate
@@ -245,13 +257,16 @@ class Blacksmith(Entity):
 
 
 class Obstacle(Entity):
-   pass
-
-
+   def __init__(self, name, position, imgs):
+      nickname= 'obstacle'
+      super(Obstacle, self).__init__(name, position, imgs, nickname)
+   def string_call():
+      return ''
 
 class Quake(Actionable):
    def __init__(self, name, position, imgs, animation_rate):
-      super(Quake, self).__init__(name, position, imgs)
+      nickname= 'quake'
+      super(Quake, self).__init__(name, position, imgs, nickname)
       self.animation_rate = animation_rate
       
 
@@ -268,9 +283,12 @@ class Quake(Actionable):
 
 class Vein(Mover):
    def __init__(self, name, rate, position, imgs, resource_distance=1):
-      super(Vein, self).__init__(name, position, rate, imgs)
+      nickname= 'vein'
+      super(Vein, self).__init__(name, position, rate, imgs, nickname)
       self.resource_distance = resource_distance
       
+   def string_call():
+      return ''.join([str(self.rate), str(self.resource_distance)])
 
    def get_resource_distance(self):
       return self.resource_distance
@@ -303,7 +321,11 @@ class Vein(Mover):
 
 class Ore(Mover):
    def __init__(self, name, position, imgs, rate=5000):
-      super(Ore, self).__init__(name, position, rate, imgs)
+      nickname= 'ore'
+      super(Ore, self).__init__(name, position, rate, imgs, nickname)
+   
+   def string_call():
+      return str(self.rate)
 
    def schedule_ore(self, world, ticks, i_store):
       schedule_action(world, self,
@@ -327,7 +349,8 @@ class Ore(Mover):
 
 class OreBlob(Mover):
    def __init__(self, name, position, rate, imgs, animation_rate):
-      super(OreBlob, self).__init__(name, position, rate, imgs)
+      nickname= 'ore'
+      super(OreBlob, self).__init__(name, position, rate, imgs, nickname)
       self.animation_rate = animation_rate
       
 
@@ -396,7 +419,7 @@ class OreBlob(Mover):
 # This is a less than pleasant file format, but structured based on
 # material covered in course.  Something like JSON would be a
 # significant improvement.
-def entity_string(entity):
+'''def entity_string(entity):
    if isinstance(entity, MinerNotFull):
       return ' '.join(['miner', entity.name, str(entity.position.x),
          str(entity.position.y), str(entity.resource_limit),
@@ -416,5 +439,5 @@ def entity_string(entity):
       return ' '.join(['obstacle', entity.name, str(entity.position.x),
          str(entity.position.y)])
    else:
-      return 'unknown'
+      return 'unknown'''
 
